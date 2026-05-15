@@ -2,6 +2,7 @@ import streamlit as st
 import json
 import os
 import time
+import re
 from groq import Groq
 
 st.set_page_config(page_title="Trung tam Hoc tap", layout="wide")
@@ -140,7 +141,7 @@ def gia_su_ai_ui():
             with st.spinner("AI dang suy nghi..."):
                 prompt = f"Hay giai bai toan sau: {cau_hoi}. Tra loi bang tieng Viet, chi tiet."
                 res = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
+                    model="mixtral-8x7b-32768",
                     messages=[{"role": "user", "content": prompt}],
                     temperature=0.7
                 )
@@ -154,16 +155,31 @@ def tao_de_ui():
     if st.button("Tao de", use_container_width=True):
         if chu_de:
             with st.spinner("Dang tao de..."):
-                prompt = f"Tao {so_cau} cau hoi trac nghiem ve '{chu_de}', moi cau co 4 dap an A,B,C,D va dap an dung. Tra ve JSON list."
-                res = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=[{"role": "user", "content": prompt}])
+                prompt = f"""Tao {so_cau} cau hoi trac nghiem ve '{chu_de}'. Moi cau co 4 dap an A,B,C,D. Dap an dung la mot trong 4 dap an. Tra ve dung dinh dang JSON list, vi du:
+[
+  {{"question": "Cau hoi 1?", "options": ["A. Dap an 1", "B. Dap an 2", "C. Dap an 3", "D. Dap an 4"], "correct": "A"}},
+  {{"question": "Cau hoi 2?", "options": ["A. Dap an 1", "B. Dap an 2", "C. Dap an 3", "D. Dap an 4"], "correct": "B"}}
+]
+Chi tra ve JSON, khong giai thich them."""
                 try:
-                    cau_hois = json.loads(res.choices[0].message.content)
+                    res = client.chat.completions.create(
+                        model="mixtral-8x7b-32768",
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=0.5
+                    )
+                    text = res.choices[0].message.content
+                    json_match = re.search(r'\[.*\]', text, re.DOTALL)
+                    if json_match:
+                        cau_hois = json.loads(json_match.group())
+                    else:
+                        cau_hois = json.loads(text)
                     st.session_state.quiz_questions = cau_hois
                     st.session_state.quiz_answers = {}
                     st.success(f"Da tao {len(cau_hois)} cau hoi!")
                     st.balloons()
-                except:
-                    st.error("Loi tao de")
+                except Exception as e:
+                    st.error(f"Loi tao de: {e}")
+                    st.code(text if 'text' in locals() else "Khong co phan hoi tu AI")
     if "quiz_questions" in st.session_state:
         for i, q in enumerate(st.session_state.quiz_questions):
             st.markdown(f"**{i+1}. {q['question']}**")
@@ -210,7 +226,7 @@ def ghi_chu_ui():
         if ghi_chu:
             with st.spinner("Dang tom tat..."):
                 res = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
+                    model="mixtral-8x7b-32768",
                     messages=[{"role": "user", "content": f"Hay tom tat noi dung sau:\n\n{ghi_chu}"}]
                 )
                 st.markdown("**Tom tat:**")
@@ -224,7 +240,10 @@ def lo_trinh_ui():
         if muc_tieu:
             with st.spinner("AI dang xay dung lo trinh..."):
                 prompt = f"Hay tao lo trinh hoc tap trong {so_ngay} ngay de dat muc tieu: {muc_tieu}."
-                res = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=[{"role": "user", "content": prompt}])
+                res = client.chat.completions.create(
+                    model="mixtral-8x7b-32768",
+                    messages=[{"role": "user", "content": prompt}]
+                )
                 st.markdown("**Lo trinh hoc tap:**")
                 st.info(res.choices[0].message.content)
 
