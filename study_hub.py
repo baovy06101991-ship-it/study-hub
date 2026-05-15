@@ -141,7 +141,7 @@ def gia_su_ai_ui():
             with st.spinner("AI dang suy nghi..."):
                 prompt = f"Hay giai bai toan sau: {cau_hoi}. Tra loi bang tieng Viet, chi tiet."
                 res = client.chat.completions.create(
-                    model="mixtral-8x7b-32768",
+                    model="llama-3.3-70b-versatile",
                     messages=[{"role": "user", "content": prompt}],
                     temperature=0.7
                 )
@@ -163,7 +163,7 @@ def tao_de_ui():
 Chi tra ve JSON, khong giai thich them."""
                 try:
                     res = client.chat.completions.create(
-                        model="mixtral-8x7b-32768",
+                        model="llama-3.3-70b-versatile",
                         messages=[{"role": "user", "content": prompt}],
                         temperature=0.5
                     )
@@ -226,7 +226,7 @@ def ghi_chu_ui():
         if ghi_chu:
             with st.spinner("Dang tom tat..."):
                 res = client.chat.completions.create(
-                    model="mixtral-8x7b-32768",
+                    model="llama-3.3-70b-versatile",
                     messages=[{"role": "user", "content": f"Hay tom tat noi dung sau:\n\n{ghi_chu}"}]
                 )
                 st.markdown("**Tom tat:**")
@@ -241,7 +241,7 @@ def lo_trinh_ui():
             with st.spinner("AI dang xay dung lo trinh..."):
                 prompt = f"Hay tao lo trinh hoc tap trong {so_ngay} ngay de dat muc tieu: {muc_tieu}."
                 res = client.chat.completions.create(
-                    model="mixtral-8x7b-32768",
+                    model="llama-3.3-70b-versatile",
                     messages=[{"role": "user", "content": prompt}]
                 )
                 st.markdown("**Lo trinh hoc tap:**")
