@@ -155,7 +155,7 @@ def tao_de_ui():
     if st.button("Tao de", use_container_width=True):
         if chu_de:
             with st.spinner("Dang tao de..."):
-                prompt = f"""Tao {so_cau} cau hoi trac nghiem ve '{chu_de}'. Moi cau co 4 dap an A,B,C,D. Dap an dung la mot trong 4 dap an. Tra ve dung dinh dang JSON list, vi du:
+                prompt = f"""Tao {so_cau} cau hoi trac nghiem ve '{chu_de}'. Moi cau co 4 dap an A, B, C, D. Dap an dung la mot chu cai (A, B, C hoac D). Tra ve dung dinh dang JSON list, vi du:
 [
   {{"question": "Cau hoi 1?", "options": ["A. Dap an 1", "B. Dap an 2", "C. Dap an 3", "D. Dap an 4"], "correct": "A"}},
   {{"question": "Cau hoi 2?", "options": ["A. Dap an 1", "B. Dap an 2", "C. Dap an 3", "D. Dap an 4"], "correct": "B"}}
@@ -183,15 +183,40 @@ Chi tra ve JSON, khong giai thich them."""
     if "quiz_questions" in st.session_state:
         for i, q in enumerate(st.session_state.quiz_questions):
             st.markdown(f"**{i+1}. {q['question']}**")
-            dap_an = st.radio("Chon dap an", q['options'], key=f"quiz_{i}")
+            dap_an = st.radio(
+                "Chon dap an",
+                q['options'],
+                key=f"quiz_{i}",
+                index=None,
+                format_func=lambda x: x
+            )
             st.session_state.quiz_answers[i] = dap_an
         if st.button("Nop bai", use_container_width=True):
             diem = 0
+            ket_qua = []
             for i, q in enumerate(st.session_state.quiz_questions):
-                if st.session_state.quiz_answers.get(i) == q['correct']:
+                chon = st.session_state.quiz_answers.get(i)
+                correct_option = q['correct']
+                if len(correct_option) == 1 and correct_option in ['A','B','C','D']:
+                    for opt in q['options']:
+                        if opt.startswith(correct_option + '.'):
+                            correct_full = opt
+                            break
+                    else:
+                        correct_full = correct_option
+                else:
+                    correct_full = correct_option
+                
+                if chon == correct_full:
                     diem += 1
+                    ket_qua.append(f"Cau {i+1}: Dung")
+                else:
+                    ket_qua.append(f"Cau {i+1}: Sai (Dap an dung: {correct_full})")
             st.balloons()
             st.success(f"Dung {diem}/{len(st.session_state.quiz_questions)}")
+            with st.expander("Xem chi tiet"):
+                for kq in ket_qua:
+                    st.write(kq)
 
 def hen_gio_ui():
     st.subheader("Hen gio hoc tap (Pomodoro)")
