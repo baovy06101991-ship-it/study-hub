@@ -296,4 +296,15 @@ else:
     lo_trinh_ui()
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("Du lieu the hoc luu trong file the_hoc.json")
+st.sidebar.markdown("📂 Du lieu the hoc luu trong file `the_hoc.json`")
+st.sidebar.markdown("---")
+st.sidebar.markdown("👨‍💻 **Tac gia:** Nguyen The Anh")
+st.sidebar.markdown("📧 baovy06101991@gmail.com")
+
+st.markdown("---")
+st.markdown(
+    "<div style='text-align: center; color: gray; padding: 20px;'>"
+    "📚 TRUNG TAM HOC TAP | Tac gia: Nguyen The Anh | 📧 baovy06101991@gmail.com"
+    "</div>",
+    unsafe_allow_html=True
+)
